@@ -54,3 +54,9 @@ AGENTS.md
 .aider*
 .windsurfrules
 GEMINI.md
+
+# Python
+*/__pycache__
+*/.venv/
+*.csv
+*.pkl
