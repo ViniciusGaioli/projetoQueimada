@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
-from datetime import datetime as dt
+from datetime import datetime as dt, date
+import os
 import openmeteo as om
 import queimada as qm
+import mapa as mp
 import pickle
 from pathlib import Path
 import sys
@@ -49,6 +51,16 @@ def get_clima(lat, long, hora):
 def listar_modelos():
     return jsonify(list(modelos.keys()))
 
+
+@api.get('/regioes/')
+def listar_regioes():
+    return jsonify(
+        {
+            nome: {'nome': dados['nome'], 'passo': dados['passo'], 'limites': dados['limites']}
+            for nome, dados in mp.REGIOES.items()
+        }
+    )
+
 @api.get('/modelos/<modelo>')
 def prever(modelo):
     lat = float(request.args['lat'])
@@ -69,6 +81,69 @@ def prever(modelo):
 
     return jsonify(modelo=modelo, probabilidade_de_incendio=previsao, risco_fogo=clima[0], periodo_de_secura=clima[1], clima=clima[2])
 
+@api.get('/mapa/<modelo>')
+def mapa_de_risco(modelo):
+    """Grade de risco do estado de São Paulo para um dia.
+
+    Parâmetros: `regiao` (um nome de `mapa.REGIOES`) e `data` (ISO, padrão hoje).
+
+    A região define o recorte e o passo da grade — não há passo livre, porque
+    cada combinação nova custaria uma montagem inteira na cota do Open-Meteo.
+    """
+    if modelo not in modelos:
+        return jsonify(erro=f'Modelo {modelo} não carregado'), 404
+
+    regiao = request.args.get('regiao', mp.REGIAO_PADRAO)
+
+    if regiao not in mp.REGIOES:
+        return jsonify(erro=f'Região desconhecida: {regiao}'), 404
+
+    try:
+        dia = date.fromisoformat(request.args['data']) if 'data' in request.args else date.today()
+    except ValueError as erro:
+        return jsonify(erro=f'Parâmetro inválido: {erro}'), 400
+
+    try:
+        grade = mp.prever_grade(modelos[modelo], scalers[modelo[-4:]], dia, regiao)
+    except mp.ClimaIndisponivel as erro:
+        return jsonify(erro=str(erro)), 503
+
+    return jsonify(modelo=modelo, **grade)
+
+
+@api.get('/simular/<modelo>')
+def simular(modelo):
+    """Predição para condições informadas à mão, com as curvas de resposta.
+
+    Parâmetros (todos opcionais, com padrão): `bioma`, `dias_sem_chuva`,
+    `precipitacao`, `umidade`, `temperatura`.
+    """
+    if modelo not in modelos:
+        return jsonify(erro=f'Modelo {modelo} não carregado'), 404
+
+    padroes = {
+        'bioma': 2.5,
+        'dias_sem_chuva': 20.0,
+        'precipitacao': 0.0,
+        'umidade': 55.0,
+        'temperatura': 28.0,
+    }
+
+    parametros = {}
+    for nome, padrao in padroes.items():
+        try:
+            valor = float(request.args.get(nome, padrao))
+        except ValueError:
+            return jsonify(erro=f'Parâmetro inválido: {nome}'), 400
+
+        minimo, maximo = mp.FAIXAS_SIMULACAO[nome]
+        # Prende na faixa em vez de recusar: o formulário não deve quebrar por
+        # um valor fora de escala, e extrapolar não traria informação.
+        parametros[nome] = min(max(valor, minimo), maximo)
+
+    return jsonify(modelo=modelo, **mp.simular(modelos[modelo], scalers[modelo[-4:]], parametros))
+
+
 @api.get('/clima')
 def clima():
     lat = float(request.args['lat'])
@@ -82,7 +157,7 @@ def clima():
 
 if __name__ == '__main__':
     pasta = 'out/'
-    
+
     try:
         pasta = sys.argv[1]
 
@@ -91,4 +166,13 @@ if __name__ == '__main__':
 
     carregar_modelos(pasta)
     print(modelos)
-    api.run(debug=True, port=5000)
+
+    # Em container o Flask precisa escutar em 0.0.0.0 para ser alcançável; o
+    # padrão segue 127.0.0.1 para que rodar na mão não exponha a API na rede.
+    # O modo debug fica desligado por padrão: além de lento, ele publica um
+    # console que executa código arbitrário.
+    api.run(
+        host=os.environ.get('API_HOST', '127.0.0.1'),
+        port=int(os.environ.get('API_PORT', 5000)),
+        debug=os.environ.get('API_DEBUG') == '1',
+    )

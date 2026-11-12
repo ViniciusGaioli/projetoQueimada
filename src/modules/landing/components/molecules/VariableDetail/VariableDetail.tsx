@@ -5,7 +5,7 @@ export function VariableDetail({ variable }: VariableDetailProps) {
 
     return (
         <aside aria-live="polite" className="lg:sticky lg:top-28">
-            <h3 className="font-display text-3xl font-medium tracking-tight text-content">{variable.label}</h3>
+            <h3 className="font-display text-3xl tracking-[-0.01em] text-content">{variable.label}</h3>
 
             <p className="mt-5 text-[0.9375rem] leading-relaxed text-content-muted">{variable.note}</p>
 

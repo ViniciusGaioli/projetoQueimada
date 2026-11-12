@@ -1,20 +1,16 @@
-import { SectionHeading, SectionMarker } from '@/modules/landing/components/atoms'
+import { SectionIntro } from '@/shared/components/molecules'
 import { PipelineNode } from '@/modules/landing/components/molecules'
 import { pipeline } from '@/modules/landing/landing.constants'
 
 export function Model() {
     return (
-        <section id="modelo" className="shell section-grid scroll-mt-24 py-24 lg:py-32">
-            <SectionMarker index="02" title="O modelo" />
-
+        <section id="modelo" className="shell scroll-mt-24 border-t border-rule py-20 lg:py-24">
             <div>
-                <SectionHeading>Do arquivo do INPE ao risco estimado, em cinco etapas.</SectionHeading>
-
-                <p className="prose-lede measure-wide mt-8">
+                <SectionIntro title="Como o modelo é construído">
                     O BDQueimadas já publica, para cada foco detectado, o índice de risco calculado pelo INPE. O modelo
                     aprende a relação entre esse índice e as condições que o cercam. Treinado, ele responde à pergunta
                     inversa: dadas estas condições, qual seria o risco, mesmo onde ainda não há foco algum.
-                </p>
+                </SectionIntro>
 
                 <ol className="mt-16 lg:grid lg:grid-cols-5 lg:gap-0">
                     {pipeline.map((step, index) => (

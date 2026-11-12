@@ -13,8 +13,11 @@ export interface DataVariable {
 
 export interface StackItem {
     name: string
-    logo: StaticImageData
+    /** Sem logo, o item sai como texto — nem toda ferramenta tem uma marca. */
+    logo?: StaticImageData
     logoIsDark?: boolean
+    /** O que essa peça faz aqui, quando não é óbvio pelo nome. */
+    role?: string
 }
 
 export interface StackLayer {
@@ -28,13 +31,17 @@ export interface PipelineStep {
     summary: string
 }
 
+/** Uma decisão de arquitetura, com o motivo que a sustenta. */
+export interface ArchitectureNote {
+    title: string
+    detail: string
+}
+
 export interface NavEntry {
     id: string
     label: string
-}
-
-export interface RiskBand {
-    threshold: number
-    label: string
-    advice: string
+    /** Destino externo à página. Sem ele, o item navega para a âncora `#id`. */
+    href?: string
+    /** Destaca o item como chamada principal. */
+    isHighlighted?: boolean
 }

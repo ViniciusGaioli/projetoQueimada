@@ -1,27 +1,35 @@
 import type { Metadata, Viewport } from 'next'
-import { Archivo, Bricolage_Grotesque, JetBrains_Mono } from 'next/font/google'
+import { Funnel_Display, Instrument_Sans, Spline_Sans_Mono } from 'next/font/google'
 
 import { defaultTheme, themeBootstrapScript } from '@/core/theme'
 
 import '@/core/assets/global.css'
 
-const bricolage = Bricolage_Grotesque({
+/**
+ * Funnel Display nos títulos, Instrument Sans no texto e Spline Sans Mono nos
+ * dados.
+ *
+ * A Funnel Display é uma grotesca de display com letras abertas e terminações
+ * levemente arredondadas: tem personalidade sem o peso de um serifado, que
+ * deixava a página com cara de documento oficial. É variável, então os títulos
+ * podem voltar a usar peso para ganhar presença.
+ */
+const funnelDisplay = Funnel_Display({
     subsets: ['latin'],
-    axes: ['opsz', 'wdth'],
-    variable: '--font-bricolage',
+    variable: '--font-display-face',
     display: 'swap',
 })
 
-const archivo = Archivo({
+const instrumentSans = Instrument_Sans({
     subsets: ['latin'],
     axes: ['wdth'],
-    variable: '--font-archivo',
+    variable: '--font-grotesk',
     display: 'swap',
 })
 
-const jetBrainsMono = JetBrains_Mono({
+const splineSansMono = Spline_Sans_Mono({
     subsets: ['latin'],
-    variable: '--font-jetbrains',
+    variable: '--font-code',
     display: 'swap',
 })
 
@@ -55,7 +63,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             data-theme={defaultTheme}
             data-scroll-behavior="smooth"
             suppressHydrationWarning
-            className={`${bricolage.variable} ${archivo.variable} ${jetBrainsMono.variable} h-full antialiased`}
+            className={`${funnelDisplay.variable} ${instrumentSans.variable} ${splineSansMono.variable} h-full antialiased`}
         >
             <head>
                 <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />

@@ -1,21 +1,17 @@
-import { SectionHeading, SectionMarker } from '@/modules/landing/components/atoms'
+import { SectionIntro } from '@/shared/components/molecules'
 import { StackColumn } from '@/modules/landing/components/molecules'
 import { stackLayers } from '@/modules/landing/landing.constants'
 
 export function TechStack() {
     return (
-        <section id="tecnologias" className="shell section-grid scroll-mt-24 py-24 lg:py-32">
-            <SectionMarker index="05" title="Tecnologias" />
-
+        <section id="tecnologias" className="shell scroll-mt-24 border-t border-rule py-20 lg:py-24">
             <div>
-                <SectionHeading>Estrutura de página separada da estrutura de backend.</SectionHeading>
+                <SectionIntro title="Tecnologias">
+                    As camadas conversam por formatos fixos, então trocar qualquer uma delas não obriga a reescrever as
+                    outras. Os dados externos são todos públicos e de fonte oficial.
+                </SectionIntro>
 
-                <p className="prose-lede measure-wide mt-8">
-                    As duas camadas conversam por um formato fixo, o mesmo descrito na seção anterior. Trocar qualquer
-                    um dos lados não obriga a reescrever o outro.
-                </p>
-
-                <div className="mt-16 grid gap-x-16 gap-y-16 lg:grid-cols-2">
+                <div className="mt-16 grid gap-x-16 gap-y-16 sm:grid-cols-2">
                     {stackLayers.map(layer => (
                         <StackColumn key={layer.title} layer={layer} />
                     ))}

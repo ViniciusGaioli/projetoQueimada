@@ -2,17 +2,17 @@ import Image from 'next/image'
 
 import fireAboveTheRoad from '@/modules/landing/assets/fogo-aguas-da-prata1.webp'
 import serraOnFire from '@/modules/landing/assets/fogo-aguas-da-pratagrande.webp'
-import { SectionHeading, SectionMarker } from '@/modules/landing/components/atoms'
+import { SectionIntro } from '@/shared/components/molecules'
 import { project } from '@/modules/landing/landing.constants'
 
 export function Problem() {
     return (
-        <section id="problema" className="shell section-grid scroll-mt-24 py-24 lg:py-32">
-            <SectionMarker index="01" title="O problema" />
+        <section id="problema" className="shell scroll-mt-24 border-t border-rule py-20 lg:py-24">
+            <SectionIntro title="O problema">
+                Por que a previsão que já existe não resolve o caso da serra, e o que o terreno tem de particular.
+            </SectionIntro>
 
-            <div className="flex flex-col gap-14">
-                <SectionHeading>A previsão de risco existe. Sua menor célula cobre a serra inteira.</SectionHeading>
-
+            <div className="mt-10 flex flex-col gap-12">
                 <div className="grid items-center gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
                     <p className="text-[1.0625rem] leading-[1.7] text-content-muted">
                         A {project.region}, entre São João da Boa Vista e Águas da Prata, concentra focos recorrentes
@@ -28,7 +28,7 @@ export function Problem() {
                             alt="Incêndio em encosta de mata na serra, com fumaça densa subindo entre as árvores e os telhados de uma cidade logo abaixo."
                             placeholder="blur"
                             sizes="(min-width: 1024px) 28rem, 100vw"
-                            className="h-auto w-full"
+                            className="max-h-[22rem] w-full object-cover"
                         />
 
                         <figcaption className="label-mono mt-4">
@@ -37,14 +37,14 @@ export function Problem() {
                     </figure>
                 </div>
 
-                <div className="grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,0.68fr)_minmax(0,1fr)]">
+                <div className="grid items-center gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1fr)]">
                     <figure className="order-last lg:order-first">
                         <Image
                             src={fireAboveTheRoad}
                             alt="Fogo e fumaça em encosta de mata logo acima de uma estrada com quiosques, com cones de sinalização na pista e pessoas observando o avanço das chamas."
                             placeholder="blur"
                             sizes="(min-width: 1024px) 24rem, 100vw"
-                            className="h-auto w-full"
+                            className="max-h-[22rem] w-full object-cover"
                         />
 
                         <figcaption className="label-mono mt-4">
@@ -81,6 +81,14 @@ export function Problem() {
                         chuva da que ficou seca, e as fases da operação, da mesma forma, valem para regiões amplas. Quem
                         decide em que trecho posicionar a brigada hoje continua dependendo de leitura de campo e de
                         experiência acumulada.
+                    </p>
+
+                    <p>
+                        O desnível dentro dessa única célula é a medida do problema. Amostrando a altitude de 934 pontos
+                        ao redor da serra, o terreno vai de 563 metros na planície a oeste a 1.536 metros no alto: a
+                        sede de Águas da Prata está a 1.232 metros, enquanto a de São João da Boa Vista, a menos de
+                        quinze quilômetros, fica a 770 metros, no vale. São dois climas diferentes dentro do mesmo
+                        pixel, e é justamente a diferença entre eles que decide onde o fogo pega.
                     </p>
 
                     <p>

@@ -1,6 +1,6 @@
 'use client'
 
-import { SectionHeading, SectionMarker } from '@/modules/landing/components/atoms'
+import { SectionIntro } from '@/shared/components/molecules'
 import { VariableDetail, VariableRow } from '@/modules/landing/components/molecules'
 
 import { useDataSchema } from './DataSchema.hook'
@@ -9,16 +9,12 @@ export function DataSchema() {
     const { activeField, activeVariable, handleSelectField, variables } = useDataSchema()
 
     return (
-        <section id="dados" className="shell section-grid scroll-mt-24 py-24 lg:py-32">
-            <SectionMarker index="03" title="Os dados" />
-
+        <section id="dados" className="shell scroll-mt-24 border-t border-rule py-20 lg:py-24">
             <div>
-                <SectionHeading>Onze colunas descrevem cada foco de calor detectado.</SectionHeading>
-
-                <p className="prose-lede measure-wide mt-8">
+                <SectionIntro title="Os dados de entrada">
                     É esse o formato que sai do BDQueimadas e entra no pipeline. Dez colunas são o que o modelo recebe;
                     a décima primeira é o que ele precisa devolver.
-                </p>
+                </SectionIntro>
 
                 <div className="mt-14 grid gap-x-14 gap-y-12 lg:grid-cols-[minmax(0,1fr)_21rem]">
                     <div>

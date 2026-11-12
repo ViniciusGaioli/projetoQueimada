@@ -56,7 +56,10 @@ AGENTS.md
 GEMINI.md
 
 # Python
-*/__pycache__
-*/.venv/
+__pycache__/
+.venv/
 *.csv
 *.pkl
+
+# Cache de clima da grade do mapa (regerado a partir do Open-Meteo)
+api/out/cache/

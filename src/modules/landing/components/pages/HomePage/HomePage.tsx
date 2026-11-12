@@ -1,9 +1,9 @@
 import {
+    Architecture,
     DataSchema,
     Hero,
     Model,
     Problem,
-    RiskPreview,
     SiteHeader,
     TechStack,
 } from '@/modules/landing/components/organisms'
@@ -18,7 +18,7 @@ export function HomePage() {
                 <Problem />
                 <Model />
                 <DataSchema />
-                <RiskPreview />
+                <Architecture />
                 <TechStack />
             </main>
         </>

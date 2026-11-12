@@ -17,7 +17,15 @@ const eslintConfig = defineConfig([
             ],
         },
     },
-    globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+    globalIgnores([
+        '.next/**',
+        'out/**',
+        'build/**',
+        'next-env.d.ts',
+        // Metade Python do repositório: ambiente virtual e saídas do modelo.
+        'api/.venv/**',
+        'api/out/**',
+    ]),
 ])
 
 export default eslintConfig

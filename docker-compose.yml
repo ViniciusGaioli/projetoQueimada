@@ -1,3 +1,13 @@
+# Sobe o projeto inteiro: o site, a API de predição e o aquecedor do cache.
+#
+# O aquecedor é o que substitui um cron na máquina de alguém: ele vai para o ar
+# junto com o site e, a cada meia hora, confere se a grade de clima do dia já
+# está montada. Nenhum visitante paga a primeira montagem, e não há nada para
+# agendar fora daqui.
+#
+# A API não publica porta: só o site fala com ela, pela rede interna do compose.
+# Isso dispensa CORS, autenticação e expor o modelo na internet.
+
 services:
     app:
         build: .
@@ -5,3 +15,31 @@ services:
         restart: unless-stopped
         ports:
             - 3000:3000
+        environment:
+            # Nome do serviço, resolvido pelo DNS interno do compose.
+            PREDICTION_API_URL: http://api:5000
+        depends_on:
+            - api
+
+    api:
+        build: ./api
+        container_name: chamazero-api
+        restart: unless-stopped
+        environment:
+            API_HOST: 0.0.0.0
+        volumes:
+            # Modelos (.pkl) e cache de clima. Como ficam fora da imagem, o
+            # cache sobrevive a cada atualização do código, e trocar o modelo
+            # não exige reconstruir nada.
+            - ./api/out:/queimadas/out
+
+    aquecedor:
+        build: ./api
+        container_name: chamazero-aquecedor
+        restart: unless-stopped
+        command: ['python', 'aquecer.py', '--vigiar']
+        environment:
+            INTERVALO_VIGIA: '1800'
+        volumes:
+            # O mesmo volume da API: um escreve o cache, o outro lê.
+            - ./api/out:/queimadas/out

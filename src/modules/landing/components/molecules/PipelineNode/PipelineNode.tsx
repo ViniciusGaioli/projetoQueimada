@@ -17,7 +17,7 @@ export function PipelineNode({ step, index, isLast }: PipelineNodeProps) {
                 <p className="label-mono text-accent">
                     {String(index + 1).padStart(2, '0')} · {step.tool}
                 </p>
-                <h3 className="mt-2.5 font-display text-2xl font-medium tracking-tight text-content">{step.title}</h3>
+                <h3 className="mt-2.5 font-display text-2xl tracking-[-0.01em] text-content">{step.title}</h3>
                 <p className="mt-2 text-[0.9375rem] leading-relaxed text-content-muted">{step.summary}</p>
             </div>
         </li>

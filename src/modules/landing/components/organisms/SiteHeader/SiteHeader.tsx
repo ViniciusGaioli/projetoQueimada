@@ -1,6 +1,7 @@
 'use client'
 
-import { NavRail, ThemeToggle } from '@/modules/landing/components/molecules'
+import { NavRail } from '@/modules/landing/components/molecules'
+import { ThemeToggle } from '@/shared/components/molecules'
 
 import { useSiteHeader } from './SiteHeader.hook'
 
