@@ -1,0 +1,1 @@
+https://datageo.ambiente.sp.gov.br/geoserver/datageo/VEGETACAO_BRASILEIRA_5000_IBGE_2004_POL/wfs?version=1.0.0&request=GetFeature&outputFormat=SHAPE-ZIP&typeName=VEGETACAO_BRASILEIRA_5000_IBGE_2004_POL

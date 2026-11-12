@@ -16,6 +16,7 @@ services:
         restart: unless-stopped
         environment:
             - MODELOS_DIR=/queimadas/out
+            - GEODATA=/queimadas/data/VEGETACAO_IBGE_2004/VEGETACAO_IBGE_2004.shp
         ports:
             - 5000:5000
         volumes:

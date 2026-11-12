@@ -46,9 +46,9 @@ def get_clima(lat, long, hora):
     precs = {k: v for k, v in clima.items() if k.startswith('prec')}
     pse = qm.periodo_de_secura(precs)
 
-    # bioma 2.5 = média entre 2 e 3, que são o fator de vegetação predominantes
-    #             na mata atlântica e no cerrado, respectivamente
-    rf = qm.risco_fogo(2.5, pse, clima['umidade'], clima['temperatura'])
+    bioma = qm.get_bioma(lat, long)
+
+    rf = qm.risco_fogo(bioma, pse, clima['umidade'], clima['temperatura'])
 
     return (rf, pse, clima)
 
@@ -72,11 +72,12 @@ def prever(modelo):
     long = float(request.args['long'])
     hora = request.args['datetime']
 
+    bioma = qm.get_bioma(lat, long)
+
     clima = get_clima(lat, long, hora)
-    # bioma 2.5 = média entre 2 e 3, que são o fator de vegetação predominantes
-    #             na mata atlântica e no cerrado, respectivamente
+
     dados = scalers[modelo[-4:]].transform([[
-        2.5,                      # Bioma
+        bioma,                    # Bioma
         clima[1],                 # DiaSemChuva
         clima[2]['precipitacao'], # Precipitacao
         clima[0]                  # RiscoFogo
@@ -84,7 +85,7 @@ def prever(modelo):
 
     previsao = float(modelos[modelo].predict_proba(dados)[0][1])
 
-    return jsonify(modelo=modelo, probabilidade_de_incendio=previsao, risco_fogo=clima[0], periodo_de_secura=clima[1], clima=clima[2])
+    return jsonify(modelo=modelo, probabilidade_de_incendio=previsao, risco_fogo=clima[0], periodo_de_secura=clima[1], clima=clima[2], bioma=bioma)
 
 @api.get('/mapa/<modelo>')
 def mapa_de_risco(modelo):

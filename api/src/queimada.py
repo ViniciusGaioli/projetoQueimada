@@ -1,4 +1,10 @@
 import math
+import os
+import geopandas as gpd
+from shapely.geometry import Point
+
+
+gdf = None
 
 
 def risco_fogo(vegetacao, dias_sem_chuva, umidade, temperatura):
@@ -53,3 +59,48 @@ def periodo_de_secura(prec):
         pse *= f
 
     return pse
+
+def get_bioma(lat, lon):
+    # Shapely usa (x, y) = (lon, lat). Converte o ponto para o CRS do shapefile.
+    ponto = gpd.GeoSeries([Point(lon, lat)], crs="EPSG:4326").to_crs(gdf.crs).iloc[0]
+
+    # covers() também considera pontos exatamente sobre a borda
+    encontrados = gdf[gdf.geometry.covers(ponto)]
+
+    # https://dataserver-coids.inpe.br/queimadas/queimadas/Publicacoes-Impacto/documentos/RiscoFogo_Sucinto_v10_2016_20171121.pdf
+    # os valores aqui foram baseados no documento acima. Os que estão no meio termo são uma média simples
+    match encontrados.drop(columns="geometry").to_dict("records")[0]['dsc_veg_pr']:
+        case 'Floresta Estacional Semidecidual':
+            return 1.72
+
+        case 'Floresta Estacional/Floresta Ombrófila Mista':
+            return (1.72 + 2.0) / 2  # 1.86
+
+        case 'Floresta Ombrófila Densa/Floresta Ombrófila Mista':
+            return (1.5 + 2.0) / 2  # 1.75
+
+        case 'Floresta Ombrófila Mista':
+            return 2.0
+
+        case 'Savana':
+            return 3.0
+
+        case 'Savana/ Floresta Estacional':
+            return (3.0 + 1.72) / 2  # 2.36
+
+        case 'Savana/Floresta Ombrófila':
+            return (3.0 + 1.5) / 2  # 2.25
+
+        case _:
+            return 2.5
+
+
+geodata_dir = os.getenv('GEODATA')
+
+if geodata_dir == None:
+    geodata_dir = '../data/VEGETACAO_IBGE_2004/VEGETACAO_IBGE_2004.shp'
+
+gdf = gpd.read_file(geodata_dir)
+if gdf.crs is None:
+    # Sem .prj: assume que o shapefile já está em lat/lon
+    gdf = gdf.set_crs("EPSG:4326")
