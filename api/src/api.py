@@ -1,20 +1,25 @@
 from flask import Flask, request, jsonify
 from datetime import datetime as dt, date
-import os
 import openmeteo as om
 import queimada as qm
 import mapa as mp
 import pickle
 from pathlib import Path
-import sys
+import os
 
 api = Flask(__name__)
 modelos = {}
 scalers = {}
 
 
-def carregar_modelos(pasta):
-    pasta = Path(pasta)
+# Resolvido a partir deste arquivo, não do diretório de execução: o gunicorn
+# entra em `src/` e uma execução direta normalmente parte de `api/`, e os dois
+# precisam achar a mesma pasta.
+PASTA_MODELOS = Path(__file__).resolve().parents[1] / 'out'
+
+
+def carregar_modelos(pasta=None):
+    pasta = Path(pasta) if pasta else PASTA_MODELOS
     
     for arq in pasta.glob("*.pkl"):
         nome_base = arq.stem
@@ -155,22 +160,19 @@ def clima():
     return jsonify(risco_fogo=dados[0], periodo_de_secura=dados[1], clima=dados[2])
 
 
+carregar_modelos(os.getenv('MODELOS_DIR'))
+print(f'Modelos disponíveis: {modelos}')
+print(f'Scalers disponíveis: {scalers}')
+
+
 if __name__ == '__main__':
-    pasta = 'out/'
-
-    try:
-        pasta = sys.argv[1]
-
-    except:
-        pasta = 'out/'
-
-    carregar_modelos(pasta)
-    print(modelos)
-
-    # Em container o Flask precisa escutar em 0.0.0.0 para ser alcançável; o
-    # padrão segue 127.0.0.1 para que rodar na mão não exponha a API na rede.
-    # O modo debug fica desligado por padrão: além de lento, ele publica um
-    # console que executa código arbitrário.
+    # Execução direta, para desenvolvimento. Em container quem serve é o
+    # gunicorn, que importa este módulo — por isso os modelos são carregados
+    # acima, fora deste bloco.
+    #
+    # O padrão é 127.0.0.1 para que rodar na mão não exponha a API na rede, e o
+    # modo debug fica desligado: além de lento, ele publica um console que
+    # executa código arbitrário.
     api.run(
         host=os.environ.get('API_HOST', '127.0.0.1'),
         port=int(os.environ.get('API_PORT', 5000)),

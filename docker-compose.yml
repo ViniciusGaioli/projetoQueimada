@@ -5,28 +5,19 @@
 # está montada. Nenhum visitante paga a primeira montagem, e não há nada para
 # agendar fora daqui.
 #
-# A API não publica porta: só o site fala com ela, pela rede interna do compose.
-# Isso dispensa CORS, autenticação e expor o modelo na internet.
+# O site fala com a API pela rede interna do compose, pelo nome do serviço. A
+# porta 5000 está publicada só para facilitar testes diretos na API; se não for
+# preciso, pode sair — o site não depende dela.
 
 services:
-    app:
-        build: .
-        container_name: chamazero
-        restart: unless-stopped
-        ports:
-            - 3000:3000
-        environment:
-            # Nome do serviço, resolvido pelo DNS interno do compose.
-            PREDICTION_API_URL: http://api:5000
-        depends_on:
-            - api
-
     api:
         build: ./api
-        container_name: chamazero-api
+        container_name: api
         restart: unless-stopped
         environment:
-            API_HOST: 0.0.0.0
+            - MODELOS_DIR=/queimadas/out
+        ports:
+            - 5000:5000
         volumes:
             # Modelos (.pkl) e cache de clima. Como ficam fora da imagem, o
             # cache sobrevive a cada atualização do código, e trocar o modelo
@@ -35,11 +26,25 @@ services:
 
     aquecedor:
         build: ./api
-        container_name: chamazero-aquecedor
+        container_name: aquecedor
         restart: unless-stopped
+        # Mesma imagem da API, outro comando: aqui não se serve requisição,
+        # monta-se a grade do dia.
         command: ['python', 'aquecer.py', '--vigiar']
         environment:
-            INTERVALO_VIGIA: '1800'
+            - INTERVALO_VIGIA=1800
         volumes:
             # O mesmo volume da API: um escreve o cache, o outro lê.
             - ./api/out:/queimadas/out
+
+    chamazero:
+        build: .
+        container_name: chamazero
+        restart: unless-stopped
+        ports:
+            - 3000:3000
+        environment:
+            # Nome do serviço, resolvido pelo DNS interno do compose.
+            - PREDICTION_API_URL=http://api:5000
+        depends_on:
+            - api

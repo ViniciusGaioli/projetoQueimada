@@ -75,7 +75,7 @@ no repositório — copie-o para `api/out/`.
 cd api
 python -m venv .venv
 .venv/bin/pip install -r requirements.txt
-.venv/bin/python src/api.py out/        # http://127.0.0.1:5000
+.venv/bin/python src/api.py               # http://127.0.0.1:5000
 
 # Aquecedor do cache, em outro terminal
 cd api && .venv/bin/python aquecer.py --vigiar
@@ -90,12 +90,15 @@ Variáveis de ambiente:
 | Variável                | Onde      | Padrão                  | Para quê                                 |
 | ----------------------- | --------- | ----------------------- | ---------------------------------------- |
 | `PREDICTION_API_URL`    | site      | `http://127.0.0.1:5000` | Endereço da API de predição              |
-| `API_HOST` / `API_PORT` | api       | `127.0.0.1` / `5000`    | Onde o Flask escuta                      |
+| `API_HOST` / `API_PORT` | api       | `127.0.0.1` / `5000`    | Onde o Flask escuta na execução direta   |
+| `MODELOS_DIR`           | api       | `api/out`               | Pasta dos `.pkl`                         |
 | `INTERVALO_VIGIA`       | aquecedor | `1800`                  | Segundos entre conferências do cache     |
 | `REGIOES_GRADE`         | aquecedor | todas                   | Regiões a aquecer, separadas por vírgula |
 
-Em produção, `docker compose up -d --build` sobe os três serviços. A API precisa de **2 GB de RAM**:
-o modelo passa de 1 GB carregado.
+Em produção, `docker compose up -d --build` sobe os três serviços — e o `--build` não é opcional:
+sem ele o Docker reaproveita a imagem antiga e serve código velho. No container quem serve a API é o
+gunicorn, que importa `api.py` como módulo; por isso os modelos são carregados fora do bloco
+`__main__`. A API precisa de **2 GB de RAM**: o modelo passa de 1 GB carregado.
 
 ## Estado atual
 

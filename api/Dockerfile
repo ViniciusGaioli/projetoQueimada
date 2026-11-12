@@ -7,7 +7,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install gunicorn
 
 COPY . .
 
-CMD ["python", "src/api.py"]
+EXPOSE 5000
+
+CMD ["gunicorn", "--chdir", "src", "--preload", "--bind", "0.0.0.0:5000", "src.api:api"]
