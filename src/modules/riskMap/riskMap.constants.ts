@@ -6,6 +6,22 @@ export const mapRoute = '/mapa'
 /** Modelo pedido à API. A chave é `{método}_{ano}`, como a API registra. */
 export const defaultModel = 'gpc_2026'
 
+/** Nome do parâmetro de URL que escolhe o modelo. */
+export const modelParam = 'modelo'
+
+/**
+ * Nome legível de cada método, pela sigla com que o arquivo do modelo é
+ * nomeado (`gb-2026.pkl` → `gb`). Sigla que não esteja aqui aparece em
+ * maiúsculas, então acrescentar um modelo em `api/out` basta para ele surgir
+ * no seletor.
+ */
+export const modelMethodLabels: Record<string, string> = {
+    gb: 'Gradient boosting',
+    gpc: 'Processo gaussiano',
+    lr: 'Regressão logística',
+    mlp: 'Rede neural',
+}
+
 /** Recortes mostrados na página, na ordem em que aparecem. */
 export const regions = ['estado', 'serra'] as const
 

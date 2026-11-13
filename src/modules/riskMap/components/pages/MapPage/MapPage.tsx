@@ -1,9 +1,10 @@
-import { getRiskMap } from '@/core/controllers/riskMap'
+import { getModels, getRiskMap } from '@/core/controllers/riskMap'
 import { getSimulation } from '@/core/controllers/simulation'
 import type { RiskMap } from '@/core/models/riskMap'
 import type { SimulationInput } from '@/core/models/simulation'
 import municipios from '@/modules/riskMap/assets/municipios.json'
 import saoPaulo from '@/modules/riskMap/assets/saoPaulo.geo.json'
+import { ModelSwitch } from '@/modules/riskMap/components/molecules'
 import { CityLookupSection, MapHeader, SimulatorSection } from '@/modules/riskMap/components/organisms'
 import {
     canvasPadding,
@@ -86,7 +87,16 @@ function toPresetInput(map: RiskMap): SimulationInput {
 }
 
 /** Server Component: busca um recorte e prepara o desenho dele. */
-export async function MapPage({ model = defaultModel }: MapPageProps) {
+export async function MapPage({ model: requested }: MapPageProps) {
+    // A lista vem da API, que a monta lendo `api/out`: colocar um `.pkl` novo
+    // lá o faz aparecer no seletor sem mudança no frontend.
+    const available = await getModels()
+    const models = 'error' in available ? [] : available.payload
+
+    // Um modelo que não existe geraria 404 em todas as seções, e a URL é
+    // editável à mão. Pedido desconhecido cai no padrão.
+    const model = requested && (models.length === 0 || models.includes(requested)) ? requested : defaultModel
+
     const results = await Promise.all(regions.map(region => getRiskMap({ model, region })))
 
     const views = results.flatMap(result => ('error' in result ? [] : [toRegionView(result.payload)]))
@@ -122,6 +132,8 @@ export async function MapPage({ model = defaultModel }: MapPageProps) {
         <>
             <MapHeader />
             <main>
+                {models.length > 1 && <ModelSwitch models={models} current={model} />}
+
                 {views.map(view => (
                     <MapPageClient key={view.map.region} view={view} />
                 ))}

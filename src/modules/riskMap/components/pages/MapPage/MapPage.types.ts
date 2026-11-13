@@ -2,7 +2,10 @@ import type { RiskMap } from '@/core/models/riskMap'
 import type { ReferenceCity, RegionSection } from '@/modules/riskMap/riskMap.types'
 
 export interface MapPageProps {
-    /** Chave do modelo na API de predição. */
+    /**
+     * Chave do modelo na API de predição, vinda da URL. Valor desconhecido —
+     * ou ausente — cai no `defaultModel`.
+     */
     model?: string
 }
 
