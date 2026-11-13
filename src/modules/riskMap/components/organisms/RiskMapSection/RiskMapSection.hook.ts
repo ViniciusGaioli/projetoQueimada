@@ -3,8 +3,9 @@
 import { useCallback, useId, useMemo, useState, useTransition } from 'react'
 
 import { canvasPadding, canvasWidth, rankingSize } from '@/modules/riskMap/riskMap.constants'
-import type { IndexedRiskCell, RankedRiskCell } from '@/modules/riskMap/riskMap.types'
+import type { RankedRiskCell } from '@/modules/riskMap/riskMap.types'
 import { refreshRiskMap } from '@/modules/riskMap/services'
+import { toIndexedCells } from '@/modules/riskMap/tools'
 import { createProjection } from '@/shared/tools/geoProjection'
 
 import type { RiskMapSectionProps } from './RiskMapSection.types'
@@ -26,31 +27,12 @@ export function useRiskMapSection({ map, citiesByCell }: RiskMapSectionProps) {
         [map.bounds],
     )
 
-    /** Extremos de probabilidade previstos no dia, que o índice reescala. */
-    const observed = useMemo(() => {
-        const probabilities = map.cells.map(cell => cell.probability)
-
-        return {
-            min: probabilities.length ? Math.min(...probabilities) : 0,
-            max: probabilities.length ? Math.max(...probabilities) : 1,
-        }
-    }, [map.cells])
-
     /**
-     * O índice de risco é a probabilidade reescalada proporcionalmente para
-     * `[0, 1]`: a célula de menor probabilidade do dia vira 0 e a de maior,
-     * 1. O modelo devolve valores comprimidos numa faixa estreita, em que a
-     * diferença entre uma região e outra fica ilegível.
+     * Índice de 0 a 1 por célula, e os extremos de probabilidade que ele
+     * reescala. A conta vive em `tools/riskScale` porque a busca por município
+     * precisa chegar ao mesmo número.
      */
-    const cells = useMemo<IndexedRiskCell[]>(() => {
-        const span = observed.max - observed.min
-
-        return map.cells.map((cell, index) => ({
-            ...cell,
-            index,
-            score: span === 0 ? 0 : (cell.probability - observed.min) / span,
-        }))
-    }, [map.cells, observed])
+    const { cells, observed } = useMemo(() => toIndexedCells(map.cells), [map.cells])
 
     /**
      * O ranking é lido por quem quer saber *onde* está o risco, e um par de

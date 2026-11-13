@@ -4,7 +4,7 @@ import type { RiskMap } from '@/core/models/riskMap'
 import type { SimulationInput } from '@/core/models/simulation'
 import municipios from '@/modules/riskMap/assets/municipios.json'
 import saoPaulo from '@/modules/riskMap/assets/saoPaulo.geo.json'
-import { MapHeader, SimulatorSection } from '@/modules/riskMap/components/organisms'
+import { CityLookupSection, MapHeader, SimulatorSection } from '@/modules/riskMap/components/organisms'
 import {
     canvasPadding,
     canvasWidth,
@@ -12,10 +12,18 @@ import {
     focusCities,
     referenceCities,
     regions,
+    outOfStateSuffix,
     regionSections,
     simulationPresets,
+    studyCity,
 } from '@/modules/riskMap/riskMap.constants'
-import { buildRegionOutline, groupCitiesByCell, type CityEntry } from '@/modules/riskMap/tools'
+import {
+    buildCityIndex,
+    buildRegionOutline,
+    groupCitiesByCell,
+    toIndexedCells,
+    type CityEntry,
+} from '@/modules/riskMap/tools'
 import { createOutlinePath, type GeoFeatureCollection } from '@/shared/tools/geoOutline'
 import { createProjection } from '@/shared/tools/geoProjection'
 
@@ -95,6 +103,21 @@ export async function MapPage({ model = defaultModel }: MapPageProps) {
 
     const simulation = await getSimulation({ model, ...presets[0].input })
 
+    // A busca por município reaproveita a grade do estado: o índice inverso
+    // custa nada e evita qualquer consulta nova ao Open-Meteo.
+    const estado = views.find(view => view.map.region === 'estado')
+    const scored = estado && toIndexedCells(estado.map.cells)
+    const cityIndex =
+        estado &&
+        scored &&
+        buildCityIndex(
+            // Os municípios de fora do estado saem da busca: a grade do estado
+            // não os cobre, e eles só aparecem nela grudados à célula paulista
+            // vizinha — o clima seria de outro lugar.
+            estado.citiesByCell.map(names => names.filter(name => !name.endsWith(outOfStateSuffix))),
+            cell => scored.cells[cell]?.score ?? 0,
+        )
+
     return (
         <>
             <MapHeader />
@@ -102,6 +125,15 @@ export async function MapPage({ model = defaultModel }: MapPageProps) {
                 {views.map(view => (
                     <MapPageClient key={view.map.region} view={view} />
                 ))}
+
+                {estado && scored && cityIndex && (
+                    <CityLookupSection
+                        cells={scored.cells}
+                        cityIndex={cityIndex}
+                        step={estado.map.step}
+                        initialCity={cityIndex[studyCity] !== undefined ? studyCity : undefined}
+                    />
+                )}
 
                 {!('error' in simulation) && (
                     <SimulatorSection model={model} initial={simulation.payload} presets={presets} />

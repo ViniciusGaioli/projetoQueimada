@@ -104,3 +104,27 @@ export function groupCitiesByCell(cells: RiskCell[], step: number, cities: CityE
 
     return grouped.map(names => [...names].sort((first, second) => first.localeCompare(second, 'pt-BR')))
 }
+
+/**
+ * Índice inverso: de cada município para a célula que o cobre.
+ *
+ * O mapa já sabe quais municípios caem em cada célula; esta função vira a
+ * relação do avesso para que uma busca por nome encontre a previsão sem
+ * nenhuma chamada nova ao Open-Meteo — o dado já está na grade do dia.
+ *
+ * Quando um município aparece em mais de uma célula (os grandes aparecem), fica
+ * com a de maior risco: é a que interessa a quem vai decidir onde olhar.
+ */
+export function buildCityIndex(citiesByCell: string[][], scoreOf: (index: number) => number) {
+    const index: Record<string, number> = {}
+
+    citiesByCell.forEach((names, cell) => {
+        names.forEach(name => {
+            const current = index[name]
+
+            if (current === undefined || scoreOf(cell) > scoreOf(current)) index[name] = cell
+        })
+    })
+
+    return index
+}

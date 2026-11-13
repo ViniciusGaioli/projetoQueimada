@@ -62,6 +62,20 @@ export interface SimulationPreset {
     input: SimulationInput
 }
 
+/** O que a busca por município mostra. */
+export interface CityReport {
+    name: string
+    cell: IndexedRiskCell
+    /** Posição no ranking de municípios, do mais arriscado para o menos. */
+    rank: number
+    /** Total de municípios cobertos pela grade. */
+    total: number
+    /** Índice médio do recorte, para comparação. */
+    average: number
+    /** Outros municípios que dividem a mesma célula. */
+    neighbours: string[]
+}
+
 export interface ProbabilityRange {
     min: number
     max: number

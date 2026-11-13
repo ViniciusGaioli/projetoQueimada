@@ -1,5 +1,6 @@
+import type { RiskCell } from '@/core/models/riskMap'
 import { heatRamp, riskLevels } from '@/modules/riskMap/riskMap.constants'
-import type { RiskLevel } from '@/modules/riskMap/riskMap.types'
+import type { IndexedRiskCell, ProbabilityRange, RiskLevel } from '@/modules/riskMap/riskMap.types'
 
 /**
  * Cor de uma probabilidade na rampa de calor.
@@ -24,4 +25,31 @@ export function toHeatColor(probability: number) {
 /** Faixa de leitura de uma probabilidade. */
 export function toRiskLevel(probability: number): RiskLevel {
     return riskLevels.find(level => probability <= level.threshold) ?? riskLevels[riskLevels.length - 1]
+}
+
+/**
+ * Converte as células cruas no que a interface mostra: índice de 0 a 1,
+ * reescalado proporcionalmente para o intervalo previsto no recorte.
+ *
+ * Vive aqui, e não dentro de um componente, porque o mapa e a busca por
+ * município precisam chegar exatamente ao mesmo número para a mesma célula.
+ */
+export function toIndexedCells(cells: RiskCell[]): { cells: IndexedRiskCell[]; observed: ProbabilityRange } {
+    const probabilities = cells.map(cell => cell.probability)
+
+    const observed = {
+        min: probabilities.length ? Math.min(...probabilities) : 0,
+        max: probabilities.length ? Math.max(...probabilities) : 1,
+    }
+
+    const span = observed.max - observed.min
+
+    return {
+        observed,
+        cells: cells.map((cell, index) => ({
+            ...cell,
+            index,
+            score: span === 0 ? 0 : (cell.probability - observed.min) / span,
+        })),
+    }
 }

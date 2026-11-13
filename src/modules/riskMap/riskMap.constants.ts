@@ -112,6 +112,30 @@ export const readoutMeasures = [
  */
 export const simulationDebounce = 350
 
+/**
+ * Sufixo que o asset de municípios usa para os de fora de São Paulo.
+ *
+ * Eles existem para desenhar o recorte da serra, que atravessa a divisa. Ficam
+ * fora da busca: a grade do estado não os cobre, e eles só aparecem nela
+ * grudados à célula paulista vizinha — o clima seria de outro lugar.
+ */
+export const outOfStateSuffix = ' (MG)'
+
+/** Município que a busca abre por padrão: o recorte de estudo do projeto. */
+export const studyCity = 'São João da Boa Vista'
+
+/** Textos da seção de busca por município. */
+export const citySection: RegionSection = {
+    title: 'A sua cidade',
+    lead:
+        'Procure um município e veja a previsão de hoje para ele, as condições que a geraram e onde ' +
+        'ele está em relação ao resto do estado. Os números saem da mesma grade do mapa acima — ' +
+        'nenhuma consulta nova é feita.',
+}
+
+/** Quantos municípios a busca sugere de uma vez. */
+export const citySuggestions = 8
+
 /** Textos da seção de simulação. */
 export const simulatorSection: RegionSection = {
     title: 'Simulação manual',
