@@ -63,3 +63,10 @@ __pycache__/
 
 # Cache de clima da grade do mapa (regerado a partir do Open-Meteo)
 api/out/cache/
+
+# Backups de conjuntos de treino e modelos, feitos antes de retreinar.
+api/backup/
+
+# Dados e logs gerados pelos scripts da API. O .gitempty mantém a pasta no repo.
+api/out/*
+!api/out/.gitempty
